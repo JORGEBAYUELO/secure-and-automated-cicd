@@ -14,6 +14,6 @@ variable "key_pair_name" {
 
 variable "react_api_key" {
   description = "Fake or real API key for React App"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
