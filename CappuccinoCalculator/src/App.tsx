@@ -45,11 +45,11 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e2e] to-[#181825] p-6">
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-brown-900 mb-2">Cappuccino Calculator</h1>
-          <p className="text-brown-600">Perfect ratios for the perfect cup</p>
+          <h1 className="text-4xl font-bold text-[#fab387] mb-2">Cappuccino Calculator</h1>
+          <p className="text-[#cdd6f4]">Perfect ratios for the perfect cup</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-xl p-6 space-y-6">
