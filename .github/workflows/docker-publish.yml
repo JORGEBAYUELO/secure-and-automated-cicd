@@ -25,4 +25,4 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/calculator-app:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/cappuccino-calculator-app:latest
