@@ -4,7 +4,7 @@
 
 resource "aws_iam_role" "ec2_ssm_role" {
   name = "ec2_ssm_access_role"
-  assume_role_policy = jsondecode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
@@ -21,7 +21,7 @@ resource "aws_iam_role" "ec2_ssm_role" {
 resource "aws_iam_role_policy" "ssm_policy" {
   name = "ssm-read-only"
   role = aws_iam_role.ec2_ssm_role.id
-  policy = jsondecode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
