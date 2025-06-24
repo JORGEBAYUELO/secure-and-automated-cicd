@@ -25,3 +25,55 @@ This project demonstrates how to securely automate the deployment of a React app
 | Docker + Webhook |  Pull Image & Restart
 +------------------+
 ```
+
+## 🛠️ Tech Stack Used
+
+- **AWS Free Tier**: EC2, IAM
+    
+- **Terraform**: Infrastructure as Code
+    
+- **Docker**: Containerized the React app
+    
+- **GitHub Actions**: CI/CD pipeline
+    
+- **Docker Hub**: Container registry
+    
+- **Webhook**: Lightweight HTTP listener for auto-deploy
+
+## 🎯 Objectives
+
+- Deploy a React app on AWS EC2 using CI/CD
+    
+- Automate infrastructure provisioning
+    
+- Apply cybersecurity best practices (IAM, secrets management)
+    
+- Use only AWS Free Tier resources to avoid billing
+
+## 📁 Folder Structure
+
+```ascii
+secure-and-automated-cicd/
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── terraform.tfvars
+│   ├── vpc.tf
+│   ├── ec2.tf
+│   ├── security.tf
+│   ├── iam.tf
+│   ├── outputs.tf
+├── react-app/
+│   ├── src/
+│   ├── public/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── ...
+├── .github/workflows/
+│   └── deploy.yml
+├── deploy.sh
+├── hooks.json
+└── README.md
+```
+
+## ✅ Step-by-Step Reproduction
