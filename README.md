@@ -309,6 +309,12 @@ key_pair_name = "INSERT_YOUR_KEYPAIR_NAME_HERE"
 react_api_key = "INSERT_YOUR_REAL_OR_FAKE_API_HERE"
 ```
 
+-  To get your public IP so it can be used in the **terraform.tfvars** for communication between your aws ec2 instance and your local machine you can visit the following website **[What Is My IP Address](https://whatismyipaddress.com/)** or your can run the following command on your terminal:
+
+```bash
+curl ifconfig.me
+```
+
 -  Deploy the Infrastructure:
 
 ```bash
@@ -358,12 +364,19 @@ Place the `Dockerfile` inside your `react-app/`:
 In your Dockerhub account:
 
 1. Sign in to your **[Docker account](https://app.docker.com/)**.
+
 2. Select your avatar in the top-right corner and from the drop-down menu select **Account settings**.
+
 3. Select **Personal access tokens**.
+
 4. Select **Generate new token**.
+
 5. Add a description for your token. Use something that indicates the use case or purpose of the token.
+
 6. Select the expiration date for the token.
+
 7. Set the access permissions. For this project will set the permissions as **Read & Write**, this will allow the token to be use for automation pipeline that can build and image and push it to a repository.
+
 8. Select **Generate** and then copy the token that appears on the screen and save it. You won't be able to retrieve the token once you close this prompt.
 
 ### 🔐 Step 2: Add Secrets to GitHub Repository
@@ -420,5 +433,135 @@ jobs:
         tags: ${{ secrets.DOCKER_USERNAME }}/cappuccino-calculator-app:latest
 ```
 
+### 🧭 5. SSH Into the EC2 Instance
 
+Here we are going to validate that the EC2 instance and all the aws resources are up and running, and prepare the instance to host the app.
 
+### 🧑‍💻 Step 1: SSH Into the Instance
+
+Use this command:
+
+```bash
+ssh -i key-pair-ed25519.pem ec2-user@<PUBLIC-IP>
+```
+
+Replace `<PUBLIC-IP>` with your public IP from your EC2 instance.
+
+### ✅ Step 2: Verify the EC2 Role & SSM Access
+
+Once inside the instance, test that you can access the SSM parameter:
+
+```bash
+aws ssm get-parameter --name "/react-app/api-key" --with-decryption
+```
+
+If that works that means that your IAM role and SSM access have been configured correctly.
+
+### 📦 Step 3: Install Docker on the EC2 Instance
+
+Run the following commands to install Docker:
+
+```bash
+sudo yum update -y
+sudo yum install -y docker
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo usermod -aG docker ec2-user
+```
+
+Log out and log back in to apply group permissions.
+
+### 🚀 6. Setup Webhook on EC2
+
+Now we are going to set up a webhook in the EC2 instance that will do the following:
+
+-  Detect a new image pushed to Docker Hub
+
+-  Pull the new image
+
+-  Restart the container automatically
+
+### 🔧 Step 1: Install `webhook` on EC2
+
+SSH into your EC2 instance if you are not already there and run:
+
+```bash
+# Download the latest release
+wget https://github.com/adnanh/webhook/releases/download/2.8.1/webhook-linux-amd64.tar.gz
+
+# Extract and install
+tar -xvzf webhook-linux-amd64.tar.gz
+sudo mv webhook-linux-amd64/webhook /usr/local/bin/
+sudo chmod +x /usr/local/bin/webhook
+
+# Test it works
+webhook --version
+```
+
+### 📜 Step 2: Create `deploy.sh`
+
+This script will:
+
+- Pull the latest Docker image from Docker Hub
+    
+- Restart the container
+    
+
+Save this as: `/home/ec2-user/deploy.sh`
+
+```bash
+#!/bin/bash
+
+APP_NAME=cappuccino-calculator-app # make sure to replace with your app name
+IMAGE_TAG=latest
+DOCKER_USER=yourdockerhubusername   # make sure to change this with your own Docker user name
+
+echo "Pulling latest image..."
+docker pull $DOCKER_USER/$APP_NAME:$IMAGE_TAG
+
+echo "Stopping current container..."
+docker stop $APP_NAME || true
+docker rm $APP_NAME || true
+
+echo "Starting new container..."
+docker run -d \
+  --name $APP_NAME \
+  -p 80:80 \
+  $DOCKER_USER/$APP_NAME:$IMAGE_TAG
+
+echo "✅ Deployment complete."
+
+```
+
+Make it executable:
+
+```bash
+chmod +x /home/ec2-user/deploy.sh
+```
+
+### ⚙️ Step 3: Create `hooks.json`
+
+Generate a strong random token locally
+
+You can generate a secure token using this command:
+
+- **Linux/macOS terminal:**
+
+```bash
+openssl rand -hex 20
+```
+
+Copy and paste the token in **passphrase** field in the following `hooks.json` script.
+
+Save this as: `/home/ec2-user/hooks.json`
+
+```json
+[
+  {
+    "id": "deploy-react-app",
+    "execute-command": "/home/ec2-user/deploy.sh",
+    "command-working-directory": "/home/ec2-user",
+    "passphrase": "YOUR_SECRET_TOKEN"
+  }
+]
+```
