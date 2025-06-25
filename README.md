@@ -565,3 +565,117 @@ Save this as: `/home/ec2-user/hooks.json`
   }
 ]
 ```
+
+### 🚀 Step 4: Start `webhook` as a Service
+
+Create a systemd service for the webhook:
+
+```bash
+sudo vim /etc/systemd/system/webhook.service
+```
+
+Paste the following inside the webhook.service file:
+
+```ini
+[Unit]
+Description=GitHub Webhook Listener
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/webhook -hooks /home/ec2-user/hooks.json -verbose -ip 0.0.0.0 -port 9000
+Restart=always
+User=ec2-user
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Start and enable the service:
+
+```bash
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable webhook
+sudo systemctl start webhook
+```
+
+Verify that the service is active and running:
+
+```bash
+sudo systemctl status webhook
+```
+
+### 🌐 7. Configure GitHub Webhook
+
+In your GitHub repo:
+
+1. Go to **Settings → Webhooks → Add Webhook**
+
+2. Payload URL:
+
+```url
+http://<ec2-public-ip>:9000/hooks/deploy-react-app?token=YOUR_SECRET_TOKEN
+```
+
+3. Content Type: `application/json`
+
+4. Leave secret blank because we are already using it directly in the payload url
+
+5. Events: Just `push`
+
+6. Save
+
+When you push a new change to `main` , this will trigger the pipeline, GitHub delivers the webhook, the webhook will hit EC2 instance, the EC2 will auto-pull the new Docker image and will restart and deploy the app.
+
+## 🧼 Clean Up AWS Resources to Avoid Charges
+
+We'll now proceed to destroy the infrastructure and remove artifacts cleanly to avoid any charges.
+
+### ✅ Step 1: Run Terraform Destroy
+
+Inside the folder where you have the Terraform infrastructure run the following command:
+
+```bash
+terraform destroy -auto-approve
+```
+
+This will remove:
+
+- EC2 instances
+    
+- Security groups
+    
+- IAM roles
+    
+- Remove the SSM parameter
+
+**Double-check the output** and confirm deletion. Also make sure to check your AWS console to confirm that all resources have been deleted and nothing is running.
+
+## **🔐 Security Best Practices Implemented**
+
+- IAM role with limited scope
+    
+- Parameterized IP restriction to EC2 (via Terraform)
+    
+- Secrets not hardcoded (via `.gitignore`, `terraform.tfvars`, GitHub secrets)
+    
+- Webhook secured with unique token
+
+- SSM Parameter store
+
+## **🎓 Lessons Learned & Value**
+
+- Built a full CI/CD pipeline using industry-standard tools
+    
+- Implemented security hardening and automation
+    
+- Learned how to handle real-world infrastructure provisioning and delivery pipelines
+
+## **📸 Screenshot**
+
+![Web Application Live](/liveapp.png)
+
+## **📫 Contact**
+
+This project was developed by [Jorge Bayuelo](https://github.com/JORGEBAYUELO).  
+Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/jorge-bayuelo/)!
