@@ -4,28 +4,9 @@
 
 This project demonstrates how to securely automate the deployment of a React application using a modern DevOps stack. It includes infrastructure provisioning with Terraform, containerization with Docker, continuous integration with GitHub Actions, secure auto-deployment via webhook on AWS EC2, and secret management best practices.
 
-## 📊 Architecture Diagram (ASCII)
+## 📊 Architecture Diagram
 
-```ascii
-+-------------+         Push Event          +------------------+
-|  Developer  | -------------------------> |  GitHub Actions  |
-+-------------+                            +--------+---------+
-                                                     |
-                                                     | Docker Build & Push
-                                                     v
-                                           +--------------------------+
-                                           |    Docker Hub Registry   |
-                                           +------------+-------------+
-                                                        |
-                      GitHub Webhook (HTTP POST)        |
-                                                        v
-+------------------+   Trigger Auto-deploy   +--------------------------+
-|   EC2 Instance   | <---------------------- |   GitHub Webhook System  |
-| (Amazon Linux 2) |                         +--------------------------+
-| Docker + Webhook |  Pull Image & Restart
-+------------------+
-```
-
+![Architecture Diagram](/Architecture_Diagram.png)
 ## 🛠️ Tech Stack Used
 
 - **AWS Free Tier**: EC2, IAM
@@ -71,8 +52,6 @@ secure-and-automated-cicd/
 │   └── ...
 ├── .github/workflows/
 │   └── deploy.yml
-├── deploy.sh
-├── hooks.json
 └── README.md
 ```
 
@@ -651,7 +630,7 @@ This will remove:
 
 **Double-check the output** and confirm deletion. Also make sure to check your AWS console to confirm that all resources have been deleted and nothing is running.
 
-## **🔐 Security Best Practices Implemented**
+## 🔐 Security Best Practices Implemented
 
 - IAM role with limited scope
     
@@ -663,7 +642,7 @@ This will remove:
 
 - SSM Parameter store
 
-## **🎓 Lessons Learned & Value**
+## 🎓 Lessons Learned & Value
 
 - Built a full CI/CD pipeline using industry-standard tools
     
@@ -671,11 +650,11 @@ This will remove:
     
 - Learned how to handle real-world infrastructure provisioning and delivery pipelines
 
-## **📸 Screenshot**
+## 📸 Screenshot
 
 ![Web Application Live](/liveapp.png)
 
-## **📫 Contact**
+## 📫 Contact
 
 This project was developed by [Jorge Bayuelo](https://github.com/JORGEBAYUELO).  
 Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/jorge-bayuelo/)!
